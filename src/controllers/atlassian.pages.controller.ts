@@ -68,6 +68,7 @@ async function list(
 		'list',
 	);
 	methodLogger.debug('Listing Confluence pages with options:', options);
+	methodLogger.info(`Fetching Confluence pages (limit: ${options.limit || DEFAULT_PAGE_SIZE})`);
 
 	try {
 		const defaults: Partial<ListPagesToolArgsType> = {
