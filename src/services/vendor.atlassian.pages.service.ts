@@ -11,6 +11,8 @@ import {
 	GetPageByIdParams,
 } from './vendor.atlassian.pages.types.js';
 import { z } from 'zod';
+import atlassianSearchService from './vendor.atlassian.search.service.js';
+import atlassianSpacesService from './vendor.atlassian.spaces.service.js';
 
 /**
  * Base API path for Confluence REST API v2
@@ -25,6 +27,170 @@ const API_PATH = '/wiki/api/v2';
  * Provides methods for listing pages and retrieving page details.
  * All methods require valid Atlassian credentials configured in the environment.
  */
+
+/**
+ * Transform search results to pages format for hybrid title search
+ * @param searchResults - Results from the search API
+ * @returns Pages response in the expected format
+ */
+function transformSearchResultsToPagesFormat(searchResults: {
+	results: Array<{
+		content?: {
+			type?: string;
+			id?: string;
+			title?: string;
+			status?: string;
+		};
+		title?: string;
+		space?: { id?: string };
+		lastModified?: string;
+		url?: string;
+	}>;
+	_links?: { next?: string; base?: string };
+}): z.infer<typeof PagesResponseSchema> {
+	const serviceLogger = Logger.forContext(
+		'services/vendor.atlassian.pages.service.ts',
+		'transformSearchResultsToPagesFormat',
+	);
+
+	// Filter to only include page-type results and transform to pages format
+	const pageResults = searchResults.results
+		.filter((result) => result.content?.type === 'page' && result.content?.id)
+		.map((result) => ({
+			id: result.content!.id!,
+			status: (result.content!.status as 'current' | 'archived' | 'trashed' | 'deleted' | 'draft' | 'historical') || 'current',
+			title: result.content!.title || result.title || '',
+			spaceId: result.space?.id?.toString() || '',
+			version: {
+				number: 1, // Search API doesn't provide version info
+				authorId: '',
+				message: '',
+				createdAt: result.lastModified || new Date().toISOString(),
+			},
+			authorId: '',
+			createdAt: result.lastModified || new Date().toISOString(),
+			parentId: null,
+			parentType: null,
+			position: null,
+			_links: {
+				editui: result.url || '',
+				webui: result.url || '',
+				self: result.url || '',
+				tinyui: result.url || '',
+			},
+		}));
+
+	serviceLogger.debug(
+		`Transformed ${pageResults.length} search results to pages format`,
+	);
+
+	return {
+		results: pageResults,
+		_links: {
+			next: searchResults._links?.next,
+			base: searchResults._links?.base || '',
+		},
+	};
+}
+
+/**
+ * Try partial title search using CQL when exact match fails
+ * @param params - Original list parameters
+ * @returns Pages response from search results
+ */
+async function tryPartialTitleSearch(
+	params: ListPagesParams,
+): Promise<z.infer<typeof PagesResponseSchema>> {
+	const serviceLogger = Logger.forContext(
+		'services/vendor.atlassian.pages.service.ts',
+		'tryPartialTitleSearch',
+	);
+
+	serviceLogger.debug('Attempting partial title search with CQL', {
+		title: params.title,
+		spaceIds: params.spaceId,
+	});
+
+	// Build CQL query for partial title matching
+	const cqlParts: string[] = [];
+
+	// Add title search with wildcard
+	if (params.title) {
+		// Use contains operator with wildcards for partial matching
+		cqlParts.push(`title ~ "${params.title}*"`);
+	}
+
+	// Add space filtering if provided
+	if (params.spaceId?.length) {
+		try {
+			// Get space keys from space IDs for CQL
+			const spacesResponse = await atlassianSpacesService.list({
+				ids: params.spaceId,
+				limit: 100,
+			});
+
+			if (spacesResponse.results.length > 0) {
+				const spaceKeys = spacesResponse.results.map(
+					(space) => space.key,
+				);
+				const spaceConditions = spaceKeys
+					.map((key) => `space = "${key}"`)
+					.join(' OR ');
+				cqlParts.push(`(${spaceConditions})`);
+
+				serviceLogger.debug('Added space key filtering to CQL', {
+					spaceKeys,
+				});
+			} else {
+				serviceLogger.warn(
+					'No spaces found for provided IDs, searching all spaces',
+				);
+			}
+		} catch (error) {
+			serviceLogger.warn(
+				'Failed to lookup space keys, searching all spaces',
+				error,
+			);
+		}
+	}
+
+	// Note: CQL search API doesn't support status filtering the same way
+	// We'll rely on the fact that search typically returns current content by default
+
+	// Only search for pages (not blogposts, folders, etc.)
+	cqlParts.push('type = "page"');
+
+	const cql = cqlParts.join(' AND ');
+
+	serviceLogger.debug('Executing CQL query for partial title search', {
+		cql,
+	});
+
+	try {
+		// Use search service with our constructed CQL
+		const searchResults = await atlassianSearchService.search({
+			cql,
+			limit: params.limit || 25,
+			// Note: search API uses different pagination, we'll handle cursor separately
+		});
+
+		serviceLogger.debug(
+			`Partial title search returned ${searchResults.results.length} results`,
+		);
+
+		// Transform search results to pages format
+		return transformSearchResultsToPagesFormat(searchResults);
+	} catch (error) {
+		serviceLogger.error('Error in partial title search', error);
+		// If search fails, return empty results rather than throwing
+		return {
+			results: [],
+			_links: {
+				base: '',
+			},
+		};
+	}
+}
 
 /**
  * List Confluence pages with optional filtering and pagination
@@ -116,6 +282,31 @@ async function list(
 			serviceLogger.debug(
 				`Successfully validated pages list for ${validatedData.results.length} items`,
 			);
+
+			// HYBRID APPROACH: If we have a title filter and got no results, try partial search
+			if (
+				params.title &&
+				validatedData.results.length === 0 &&
+				!params.cursor // Only try on first page, not for pagination
+			) {
+				serviceLogger.info(
+					`Exact title match failed for "${params.title}", attempting partial search`,
+				);
+
+				const partialResults = await tryPartialTitleSearch(params);
+
+				if (partialResults.results.length > 0) {
+					serviceLogger.info(
+						`Partial title search found ${partialResults.results.length} results`,
+					);
+					return partialResults;
+				} else {
+					serviceLogger.debug(
+						'Partial title search also returned no results',
+					);
+				}
+			}
+
 			return validatedData;
 		} catch (validationError) {
 			if (validationError instanceof z.ZodError) {

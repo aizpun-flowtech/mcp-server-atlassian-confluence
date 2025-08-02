@@ -52,7 +52,7 @@ const ListPagesToolArgs = z.object({
 		.string()
 		.optional()
 		.describe(
-			'Filter pages by title. IMPORTANT: This performs an EXACT match on the page title, not a partial or contains match. For partial title matching or full-text content search, use the `conf_search` tool instead, which supports fuzzy title matching via `title ~ "Your Text"`.',
+			'Filter pages by title with SMART MATCHING. First tries exact match, then automatically falls back to partial matching if no exact results found. For example, "Balance" will find "Balance Reconciliation System - Documentation Summary". For full-text content search or advanced CQL queries, use the `conf_search` tool instead.',
 		),
 
 	status: z

@@ -105,10 +105,11 @@ function registerTools(server: McpServer) {
 	// Register the list pages tool
 	server.tool(
 		'conf_ls_pages',
-		`Lists pages within specified spaces (by \`spaceId\` or \`spaceKey\`) or globally. Filters by \`title\` (NOTE: this is an EXACT match on the page title), \`status\` (current, archived, etc.). Supports sorting (\`sort\`) and pagination (\`limit\`, \`cursor\`). 
+		`Lists pages within specified spaces (by \`spaceId\` or \`spaceKey\`) or globally. Filters by \`title\` with SMART MATCHING: tries exact match first, automatically falls back to partial matching if no exact results found. Supports \`status\` (current, archived, etc.), sorting (\`sort\`) and pagination (\`limit\`, \`cursor\`). 
 - Returns a formatted list of pages including ID, title, status, space ID, author, version, and URL. 
 - Pagination information including next cursor value is included at the end of the returned text content.
-- For partial title matching or full-text content search, use the \`conf_search\` tool. 
+- SMART TITLE SEARCH: When using \`title\` parameter, if exact match fails, automatically searches for partial matches (e.g., "Balance" will find "Balance Reconciliation System").
+- For full-text content search or advanced queries, use the \`conf_search\` tool. 
 - Requires Confluence credentials.`,
 		ListPagesToolArgs.shape,
 		listPages,
