@@ -1,3 +1,10 @@
+# [1.32.0](https://github.com/aashari/mcp-server-atlassian-confluence/compare/v1.31.3...v1.32.0) (2025-08-02)
+
+
+### Features
+
+* add informational logging for page listing operations ([767e13d](https://github.com/aashari/mcp-server-atlassian-confluence/commit/767e13d8784540b0fd5e2ea40916b40da1586c19))
+
 ## [1.31.3](https://github.com/aashari/mcp-server-atlassian-confluence/compare/v1.31.2...v1.31.3) (2025-08-02)
 
 
