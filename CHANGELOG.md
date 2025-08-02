@@ -1,3 +1,15 @@
+# [2.0.0](https://github.com/aashari/mcp-server-atlassian-confluence/compare/v1.32.0...v2.0.0) (2025-08-02)
+
+
+### Features
+
+* implement smart title search and inline comments separation ([4dfc95c](https://github.com/aashari/mcp-server-atlassian-confluence/commit/4dfc95ca1b816082dac5160ee3e6b55ab358d305))
+
+
+### BREAKING CHANGES
+
+* Title search behavior now includes automatic partial matching fallback
+
 # [1.32.0](https://github.com/aashari/mcp-server-atlassian-confluence/compare/v1.31.3...v1.32.0) (2025-08-02)
 
 
