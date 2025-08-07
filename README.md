@@ -101,6 +101,8 @@ Create `~/.mcp/configs.json` for system-wide configuration:
 }
 ```
 
+**Alternative config keys:** The system also accepts `"atlassian-confluence"`, `"@aashari/mcp-server-atlassian-confluence"`, or `"mcp-server-atlassian-confluence"` instead of `"confluence"`.
+
 ## Real-World Examples
 
 ### 📚 Explore Your Knowledge Base
