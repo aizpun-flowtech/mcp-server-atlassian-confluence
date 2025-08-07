@@ -55,10 +55,19 @@ function transformSearchResultsToPagesFormat(searchResults: {
 
 	// Filter to only include page-type results and transform to pages format
 	const pageResults = searchResults.results
-		.filter((result) => result.content?.type === 'page' && result.content?.id)
+		.filter(
+			(result) => result.content?.type === 'page' && result.content?.id,
+		)
 		.map((result) => ({
 			id: result.content!.id!,
-			status: (result.content!.status as 'current' | 'archived' | 'trashed' | 'deleted' | 'draft' | 'historical') || 'current',
+			status:
+				(result.content!.status as
+					| 'current'
+					| 'archived'
+					| 'trashed'
+					| 'deleted'
+					| 'draft'
+					| 'historical') || 'current',
 			title: result.content!.title || result.title || '',
 			spaceId: result.space?.id?.toString() || '',
 			version: {
