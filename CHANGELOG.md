@@ -1,3 +1,10 @@
+## [2.0.2](https://github.com/aashari/mcp-server-atlassian-confluence/compare/v2.0.1...v2.0.2) (2025-08-07)
+
+
+### Bug Fixes
+
+* improve .env.example with detailed comments ([aecadb2](https://github.com/aashari/mcp-server-atlassian-confluence/commit/aecadb27d16570ce63dde67cc1059da2b4a8926b))
+
 ## [2.0.1](https://github.com/aashari/mcp-server-atlassian-confluence/compare/v2.0.0...v2.0.1) (2025-08-07)
 
 
