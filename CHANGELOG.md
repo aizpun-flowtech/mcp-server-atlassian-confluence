@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/aashari/mcp-server-atlassian-confluence/compare/v2.0.0...v2.0.1) (2025-08-07)
+
+
+### Bug Fixes
+
+* add alternative config key documentation ([9d636b5](https://github.com/aashari/mcp-server-atlassian-confluence/commit/9d636b5e2b574b5498c3e75522d3aa0164da594e))
+
 # [2.0.0](https://github.com/aashari/mcp-server-atlassian-confluence/compare/v1.32.0...v2.0.0) (2025-08-02)
 
 
