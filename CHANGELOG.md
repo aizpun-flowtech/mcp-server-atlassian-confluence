@@ -1,3 +1,10 @@
+# [2.1.0](https://github.com/aashari/mcp-server-atlassian-confluence/compare/v2.0.2...v2.1.0) (2025-09-09)
+
+
+### Features
+
+* modernize dependencies and ensure Zod v3.25.76 MCP SDK compatibility ([#80](https://github.com/aashari/mcp-server-atlassian-confluence/issues/80)) ([9eb21f0](https://github.com/aashari/mcp-server-atlassian-confluence/commit/9eb21f0df2d2870ce888fe8cb3bd87ee0822d666))
+
 ## [2.0.2](https://github.com/aashari/mcp-server-atlassian-confluence/compare/v2.0.1...v2.0.2) (2025-08-07)
 
 
