@@ -1,3 +1,10 @@
+## [2.1.1](https://github.com/aashari/mcp-server-atlassian-confluence/compare/v2.1.0...v2.1.1) (2025-09-09)
+
+
+### Bug Fixes
+
+* prevent dotenv from outputting to STDIO in MCP mode ([#82](https://github.com/aashari/mcp-server-atlassian-confluence/issues/82)) ([a286143](https://github.com/aashari/mcp-server-atlassian-confluence/commit/a28614315421ae9ea2cc7bb4074091f7fab0d877))
+
 # [2.1.0](https://github.com/aashari/mcp-server-atlassian-confluence/compare/v2.0.2...v2.1.0) (2025-09-09)
 
 
