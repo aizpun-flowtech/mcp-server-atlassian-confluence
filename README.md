@@ -57,7 +57,7 @@ npx -y @aashari/mcp-server-atlassian-confluence get-space --space-key DEV
 # Search for pages
 npx -y @aashari/mcp-server-atlassian-confluence search --query "API documentation"
 
-# Search across pages, spaces, attachments, and comments in one go
+# Search across pages, spaces, attachments, and comments in one go (titles + full content)
 npx -y @aashari/mcp-server-atlassian-confluence search-all --query "incident response"
 ```
 
@@ -134,7 +134,7 @@ Ask your AI assistant:
 - *"Find all documentation with 'security' in the title"*
 - *"Show me pages labeled with 'getting-started'"*
 - *"Search for content in the DEV space about deployment"*
-- *"Run a universal search for 'incident response' across spaces, pages, attachments, and comments"*
+- *"Run a universal search for 'incident response' across spaces, pages, attachments, and comments (matches titles and body content automatically)"*
 
 ### 📄 Access Specific Content
 

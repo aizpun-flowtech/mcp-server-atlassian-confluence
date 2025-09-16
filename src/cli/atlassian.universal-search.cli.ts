@@ -18,7 +18,7 @@ function register(program: Command): void {
 		)
 		.requiredOption(
 			'-q, --query <text>',
-			'Text to search for across Confluence content. Required.',
+			'Text to search for across Confluence titles and full content. Required.',
 		)
 		.option(
 			'--space-key <key>',

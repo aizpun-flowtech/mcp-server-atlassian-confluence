@@ -84,8 +84,16 @@ function buildTypeSpecificCql(
 ): string {
 	const clauses: string[] = [];
 
-	clauses.push(`type = ${SECTION_TO_CQL_TYPE[type]}`);
-	clauses.push(`text ~ "${escapeCqlValue(options.query)}"`);
+	const cqlType = SECTION_TO_CQL_TYPE[type];
+	const escapedQuery = escapeCqlValue(options.query);
+
+	clauses.push(`type = ${cqlType}`);
+
+	if (type === 'spaces') {
+		clauses.push(`title ~ "${escapedQuery}"`);
+	} else {
+		clauses.push(`(title ~ "${escapedQuery}" OR text ~ "${escapedQuery}")`);
+	}
 
 	if (type !== 'spaces' && options.spaceKey) {
 		clauses.push(`space = "${escapeCqlValue(options.spaceKey)}"`);

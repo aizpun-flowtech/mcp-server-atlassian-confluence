@@ -8,7 +8,7 @@ const UniversalSearchToolArgs = z.object({
 		.string()
 		.min(1)
 		.describe(
-			'Text to search for across Confluence pages, blog posts, spaces, attachments, and comments. Required.',
+			'Text to search for across Confluence titles and full content (pages, blog posts, spaces, attachments, comments). Required.',
 		),
 	spaceKey: z
 		.string()
