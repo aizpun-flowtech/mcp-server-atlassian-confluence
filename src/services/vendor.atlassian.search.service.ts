@@ -1,6 +1,9 @@
 import { createApiError, createAuthMissingError } from '../utils/error.util.js';
 import { Logger } from '../utils/logger.util.js';
-import { getAtlassianCredentials } from '../utils/transport.util.js';
+import {
+	ATLASSIAN_SITE_REQUIRED_MESSAGE,
+	getAtlassianCredentials,
+} from '../utils/transport.util.js';
 import {
 	SearchParams,
 	SearchResponseSchema,
@@ -86,9 +89,7 @@ async function search(params: SearchParams): Promise<SearchResponseType> {
 
 	const credentials = getAtlassianCredentials();
 	if (!credentials) {
-		throw createAuthMissingError(
-			'Atlassian credentials are required for this operation',
-		);
+		throw createAuthMissingError(ATLASSIAN_SITE_REQUIRED_MESSAGE);
 	}
 
 	// Build request parameters
@@ -130,19 +131,22 @@ async function search(params: SearchParams): Promise<SearchResponseType> {
 		// For debugging
 		serviceLogger.debug(`Making direct fetch to v1 API endpoint: ${url}`);
 
-		// Construct Auth header
-		const authHeader = `Basic ${Buffer.from(
-			`${credentials.userEmail}:${credentials.apiToken}`,
-		).toString('base64')}`;
+		// Build headers and include authentication when available
+		const headers: Record<string, string> = {
+			Accept: 'application/json',
+			'Content-Type': 'application/json',
+		};
+
+		if (credentials.userEmail && credentials.apiToken) {
+			headers.Authorization = `Basic ${Buffer.from(
+				`${credentials.userEmail}:${credentials.apiToken}`,
+			).toString('base64')}`;
+		}
 
 		// Make direct fetch call
 		const response = await fetch(url, {
 			method: 'GET',
-			headers: {
-				Authorization: authHeader,
-				Accept: 'application/json',
-				'Content-Type': 'application/json',
-			},
+			headers,
 		});
 
 		// Log the response status for debugging

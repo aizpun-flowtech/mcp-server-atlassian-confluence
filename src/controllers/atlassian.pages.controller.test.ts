@@ -1,5 +1,8 @@
 import atlassianPagesController from './atlassian.pages.controller.js';
-import { getAtlassianCredentials } from '../utils/transport.util.js';
+import {
+	getAtlassianCredentials,
+	hasAtlassianAuthCredentials,
+} from '../utils/transport.util.js';
 import { config } from '../utils/config.util.js';
 import { McpError } from '../utils/error.util.js';
 
@@ -10,15 +13,16 @@ describe('Atlassian Pages Controller', () => {
 		config.load();
 
 		const credentials = getAtlassianCredentials();
-		if (!credentials) {
+		if (!hasAtlassianAuthCredentials(credentials)) {
 			console.warn(
-				'Skipping Atlassian Pages Controller tests: No credentials available',
+				'Skipping Atlassian Pages Controller tests: No authenticated credentials available',
 			);
 		}
 	});
 
 	// Helper function to skip tests when credentials are missing
-	const skipIfNoCredentials = () => !getAtlassianCredentials();
+	const skipIfNoCredentials = () =>
+		!hasAtlassianAuthCredentials(getAtlassianCredentials());
 
 	describe('list', () => {
 		it('should return a formatted list of pages', async () => {

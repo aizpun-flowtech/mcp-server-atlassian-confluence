@@ -1,7 +1,10 @@
 // vendor.atlassian.search.test.ts
 
 import atlassianSearchService from './vendor.atlassian.search.service.js';
-import { getAtlassianCredentials } from '../utils/transport.util.js';
+import {
+	getAtlassianCredentials,
+	hasAtlassianAuthCredentials,
+} from '../utils/transport.util.js';
 import { config } from '../utils/config.util.js';
 import { McpError } from '../utils/error.util.js';
 
@@ -10,9 +13,9 @@ describe('Vendor Atlassian Search Service', () => {
 	beforeAll(() => {
 		config.load(); // Ensure config is loaded
 		const credentials = getAtlassianCredentials();
-		if (!credentials) {
+		if (!hasAtlassianAuthCredentials(credentials)) {
 			console.warn(
-				'Skipping Atlassian Search Service tests: No credentials available',
+				'Skipping Atlassian Search Service tests: No authenticated credentials available',
 			);
 		}
 	});
@@ -20,7 +23,7 @@ describe('Vendor Atlassian Search Service', () => {
 	// Helper function to skip tests when credentials are missing
 	const skipIfNoCredentials = () => {
 		const credentials = getAtlassianCredentials();
-		return !credentials;
+		return !hasAtlassianAuthCredentials(credentials);
 	};
 
 	describe('search', () => {

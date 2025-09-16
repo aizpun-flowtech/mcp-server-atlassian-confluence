@@ -1,5 +1,8 @@
 import { CliTestUtil } from '../utils/cli.test.util.js';
-import { getAtlassianCredentials } from '../utils/transport.util.js';
+import {
+	getAtlassianCredentials,
+	hasAtlassianAuthCredentials,
+} from '../utils/transport.util.js';
 import { config } from '../utils/config.util.js';
 
 describe('Atlassian Confluence Pages CLI Commands', () => {
@@ -10,9 +13,9 @@ describe('Atlassian Confluence Pages CLI Commands', () => {
 
 		// Log warning if credentials aren't available
 		const credentials = getAtlassianCredentials();
-		if (!credentials) {
+		if (!hasAtlassianAuthCredentials(credentials)) {
 			console.warn(
-				'Skipping Atlassian Confluence Pages CLI tests: No credentials available',
+				'Skipping Atlassian Confluence Pages CLI tests: No authenticated credentials available',
 			);
 		}
 	});
@@ -21,12 +24,15 @@ describe('Atlassian Confluence Pages CLI Commands', () => {
 	const skipIfNoCredentials = () => {
 		const credentials = getAtlassianCredentials();
 		// If we're running in CI or test environment, use mock responses instead of skipping
-		if (!credentials && process.env.NODE_ENV === 'test') {
+		if (
+			!hasAtlassianAuthCredentials(credentials) &&
+			process.env.NODE_ENV === 'test'
+		) {
 			// Return false to allow tests to run with potential mocks
 			return false;
 		}
 		// Skip if no credentials are available (for integration tests)
-		return !credentials;
+		return !hasAtlassianAuthCredentials(credentials);
 	};
 
 	// Helper function to get a valid space key for testing

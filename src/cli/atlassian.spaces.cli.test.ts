@@ -1,5 +1,8 @@
 import { CliTestUtil } from '../utils/cli.test.util.js';
-import { getAtlassianCredentials } from '../utils/transport.util.js';
+import {
+	getAtlassianCredentials,
+	hasAtlassianAuthCredentials,
+} from '../utils/transport.util.js';
 import { config } from '../utils/config.util.js';
 
 describe('Atlassian Confluence Spaces CLI Commands', () => {
@@ -10,9 +13,9 @@ describe('Atlassian Confluence Spaces CLI Commands', () => {
 
 		// Log warning if credentials aren't available
 		const credentials = getAtlassianCredentials();
-		if (!credentials) {
+		if (!hasAtlassianAuthCredentials(credentials)) {
 			console.warn(
-				'Skipping Atlassian Confluence Spaces CLI tests: No credentials available',
+				'Skipping Atlassian Confluence Spaces CLI tests: No authenticated credentials available',
 			);
 		}
 	});
@@ -20,7 +23,7 @@ describe('Atlassian Confluence Spaces CLI Commands', () => {
 	// Helper function to skip tests when credentials are missing
 	const skipIfNoCredentials = () => {
 		const credentials = getAtlassianCredentials();
-		if (!credentials) {
+		if (!hasAtlassianAuthCredentials(credentials)) {
 			return true;
 		}
 		return false;

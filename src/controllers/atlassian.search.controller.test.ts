@@ -1,5 +1,8 @@
 import atlassianSearchController from './atlassian.search.controller.js';
-import { getAtlassianCredentials } from '../utils/transport.util.js';
+import {
+	getAtlassianCredentials,
+	hasAtlassianAuthCredentials,
+} from '../utils/transport.util.js';
 import { config } from '../utils/config.util.js';
 import { McpError } from '../utils/error.util.js';
 
@@ -10,9 +13,9 @@ describe('Atlassian Search Controller', () => {
 		config.load();
 
 		const credentials = getAtlassianCredentials();
-		if (!credentials) {
+		if (!hasAtlassianAuthCredentials(credentials)) {
 			console.warn(
-				'Skipping Atlassian Search Controller tests: No credentials available',
+				'Skipping Atlassian Search Controller tests: No authenticated credentials available',
 			);
 		}
 	});

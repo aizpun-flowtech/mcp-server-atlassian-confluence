@@ -250,8 +250,9 @@ export function handleCliError(error: unknown): never {
 		cliLines.push(
 			'Tip: Make sure to set up your Atlassian credentials in the configuration file or environment variables:',
 		);
+		cliLines.push('- ATLASSIAN_SITE_NAME (required)');
 		cliLines.push(
-			'- ATLASSIAN_SITE_NAME, ATLASSIAN_USER_EMAIL, and ATLASSIAN_API_TOKEN',
+			'- ATLASSIAN_USER_EMAIL and ATLASSIAN_API_TOKEN (optional, required for private content)',
 		);
 	} else if (mcpError.type === ErrorType.AUTH_INVALID) {
 		cliLines.push(
