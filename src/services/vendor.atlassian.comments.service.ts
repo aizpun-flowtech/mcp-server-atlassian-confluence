@@ -4,6 +4,7 @@
 
 import { Logger } from '../utils/logger.util.js';
 import {
+	ATLASSIAN_SITE_REQUIRED_MESSAGE,
 	fetchAtlassian,
 	getAtlassianCredentials,
 } from '../utils/transport.util.js';
@@ -46,9 +47,7 @@ async function listPageComments(
 	// Get Atlassian credentials
 	const credentials = getAtlassianCredentials();
 	if (!credentials) {
-		throw createAuthMissingError(
-			'Atlassian credentials are required for this operation',
-		);
+		throw createAuthMissingError(ATLASSIAN_SITE_REQUIRED_MESSAGE);
 	}
 
 	// Set up query parameters

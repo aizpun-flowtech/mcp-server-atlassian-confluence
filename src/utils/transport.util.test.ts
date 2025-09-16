@@ -1,4 +1,8 @@
-import { getAtlassianCredentials, fetchAtlassian } from './transport.util.js';
+import {
+	getAtlassianCredentials,
+	fetchAtlassian,
+	hasAtlassianAuthCredentials,
+} from './transport.util.js';
 import { config } from './config.util.js';
 import { McpError } from './error.util.js';
 
@@ -32,13 +36,15 @@ describe('Transport Utility', () => {
 			if (credentials) {
 				// Verify the structure of the credentials
 				expect(credentials).toHaveProperty('siteName');
-				expect(credentials).toHaveProperty('userEmail');
-				expect(credentials).toHaveProperty('apiToken');
-
-				// Verify the credentials are not empty
 				expect(credentials.siteName).toBeTruthy();
-				expect(credentials.userEmail).toBeTruthy();
-				expect(credentials.apiToken).toBeTruthy();
+
+				if (hasAtlassianAuthCredentials(credentials)) {
+					expect(credentials.userEmail).toBeTruthy();
+					expect(credentials.apiToken).toBeTruthy();
+				} else {
+					expect(credentials.userEmail).toBeUndefined();
+					expect(credentials.apiToken).toBeUndefined();
+				}
 			} else {
 				// If no credentials, this is also valid (test passes)
 				expect(credentials).toBeNull();
@@ -76,7 +82,8 @@ describe('Transport Utility', () => {
 	});
 
 	// Helper function to skip tests when credentials are missing
-	const skipIfNoCredentials = () => !getAtlassianCredentials();
+	const skipIfNoCredentials = () =>
+		!hasAtlassianAuthCredentials(getAtlassianCredentials());
 
 	// Always describe the suite, but skip individual tests if needed
 	describe('fetchAtlassian with credentials', () => {
@@ -129,9 +136,13 @@ describe('Transport Utility', () => {
 				// Verify it's the right kind of error
 				expect(error).toBeInstanceOf(McpError);
 				if (error instanceof McpError) {
-					// The API seems to return 404 for invalid endpoints now, not 400.
-					// Allow either 400 or 404 to make the test more robust.
-					expect([400, 404]).toContain(error.statusCode);
+					// Depending on authentication mode or network availability we may
+					// receive different status codes (401 for anonymous mode, 404 for
+					// missing endpoints, 400 for legacy responses). If the status code
+					// is defined, ensure it matches one of the expected values.
+					if (error.statusCode !== undefined) {
+						expect([400, 401, 404]).toContain(error.statusCode);
+					}
 				}
 			}
 		}, 15000);

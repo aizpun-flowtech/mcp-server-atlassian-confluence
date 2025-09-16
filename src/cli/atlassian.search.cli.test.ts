@@ -1,5 +1,8 @@
 import { CliTestUtil } from '../utils/cli.test.util.js';
-import { getAtlassianCredentials } from '../utils/transport.util.js';
+import {
+	getAtlassianCredentials,
+	hasAtlassianAuthCredentials,
+} from '../utils/transport.util.js';
 import { config } from '../utils/config.util.js';
 
 describe('Atlassian Confluence Search CLI Commands', () => {
@@ -10,15 +13,16 @@ describe('Atlassian Confluence Search CLI Commands', () => {
 
 		// Log warning if credentials aren't available
 		const credentials = getAtlassianCredentials();
-		if (!credentials) {
+		if (!hasAtlassianAuthCredentials(credentials)) {
 			console.warn(
-				'Skipping Atlassian Confluence Search CLI tests: No credentials available',
+				'Skipping Atlassian Confluence Search CLI tests: No authenticated credentials available',
 			);
 		}
 	});
 
 	// Helper function to skip tests when credentials are missing
-	const skipIfNoCredentials = () => !getAtlassianCredentials();
+	const skipIfNoCredentials = () =>
+		!hasAtlassianAuthCredentials(getAtlassianCredentials());
 
 	// Helper function to get a valid space key for testing
 	async function getSpaceKey(): Promise<string | null> {

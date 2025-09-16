@@ -33,13 +33,19 @@ Generate a Confluence API Token:
 3. Give it a name like **"AI Assistant"**
 4. **Copy the generated token** immediately (you won't see it again!)
 
+> 💡 **Working with a public Confluence site?** You can skip the email and API token steps. Set only `ATLASSIAN_SITE_NAME` and the server will use anonymous access, returning any content that is publicly visible.
+
 ### 2. Try It Instantly
 
 ```bash
 # Set your credentials
 export ATLASSIAN_SITE_NAME="your-company"  # for your-company.atlassian.net
+
+# Optional: only needed for private spaces or pages
 export ATLASSIAN_USER_EMAIL="your.email@company.com"
 export ATLASSIAN_API_TOKEN="your_copied_token"
+
+If you only need public data, set `ATLASSIAN_SITE_NAME` and skip the email/token.
 
 # List your Confluence spaces
 npx -y @aashari/mcp-server-atlassian-confluence ls-spaces
@@ -73,6 +79,8 @@ Add this to your Claude configuration file (`~/.claude/claude_desktop_config.jso
 }
 ```
 
+Only `ATLASSIAN_SITE_NAME` is required. Omit the email and API token if you only need access to public Confluence content.
+
 Restart Claude Desktop, and you'll see "🔗 confluence" in the status bar.
 
 ### For Other AI Assistants
@@ -94,12 +102,14 @@ Create `~/.mcp/configs.json` for system-wide configuration:
   "confluence": {
     "environments": {
       "ATLASSIAN_SITE_NAME": "your-company",
-      "ATLASSIAN_USER_EMAIL": "your.email@company.com", 
+      "ATLASSIAN_USER_EMAIL": "your.email@company.com",
       "ATLASSIAN_API_TOKEN": "your_api_token"
     }
   }
 }
 ```
+
+As above, `ATLASSIAN_SITE_NAME` is mandatory while the user email and API token are optional for private spaces.
 
 **Alternative config keys:** The system also accepts `"atlassian-confluence"`, `"@aashari/mcp-server-atlassian-confluence"`, or `"mcp-server-atlassian-confluence"` instead of `"confluence"`.
 
@@ -161,6 +171,9 @@ Ask your AI assistant:
 3. **Check your site name format**:
    - If your Confluence URL is `https://mycompany.atlassian.net`
    - Your site name should be just `mycompany`
+4. **Using anonymous access?**:
+   - Only publicly shared spaces and pages can be retrieved without credentials
+   - Add `ATLASSIAN_USER_EMAIL` and `ATLASSIAN_API_TOKEN` if the content requires sign-in
 
 ### "Space not found" or "Page not found"
 

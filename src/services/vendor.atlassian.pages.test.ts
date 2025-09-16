@@ -1,5 +1,8 @@
 import pagesService from './vendor.atlassian.pages.service.js';
-import { getAtlassianCredentials } from '../utils/transport.util.js';
+import {
+	getAtlassianCredentials,
+	hasAtlassianAuthCredentials,
+} from '../utils/transport.util.js';
 import { config } from '../utils/config.util.js';
 
 describe('Vendor Atlassian Pages Service', () => {
@@ -10,15 +13,16 @@ describe('Vendor Atlassian Pages Service', () => {
 
 		// Log a warning if credentials aren't available
 		const credentials = getAtlassianCredentials();
-		if (!credentials) {
+		if (!hasAtlassianAuthCredentials(credentials)) {
 			console.warn(
-				'Skipping Atlassian Pages tests: No credentials available',
+				'Skipping Atlassian Pages tests: No authenticated credentials available',
 			);
 		}
 	});
 
 	// Helper function to skip tests when credentials are missing
-	const skipIfNoCredentials = () => !getAtlassianCredentials();
+	const skipIfNoCredentials = () =>
+		!hasAtlassianAuthCredentials(getAtlassianCredentials());
 
 	// Use standard describe and skip inside test if needed
 	describe('list', () => {

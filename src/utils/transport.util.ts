@@ -15,9 +15,17 @@ import {
  */
 export interface AtlassianCredentials {
 	siteName: string;
-	userEmail: string;
-	apiToken: string;
+	userEmail?: string;
+	apiToken?: string;
 }
+
+/**
+ * Reusable error message when the Confluence site name is not configured
+ */
+export const ATLASSIAN_SITE_REQUIRED_MESSAGE =
+	'Confluence site name is required. Set ATLASSIAN_SITE_NAME (for example "example" for example.atlassian.net).';
+
+let anonymousAccessLogged = false;
 
 /**
  * Interface for HTTP request options
@@ -40,11 +48,23 @@ export function getAtlassianCredentials(): AtlassianCredentials | null {
 	const userEmail = config.get('ATLASSIAN_USER_EMAIL');
 	const apiToken = config.get('ATLASSIAN_API_TOKEN');
 
-	if (!siteName || !userEmail || !apiToken) {
+	if (!siteName) {
 		utilLogger.warn(
-			'Missing Atlassian credentials. Please set ATLASSIAN_SITE_NAME, ATLASSIAN_USER_EMAIL, and ATLASSIAN_API_TOKEN environment variables.',
+			'Missing Atlassian site name. Please set ATLASSIAN_SITE_NAME environment variable.',
 		);
 		return null;
+	}
+
+	if (!userEmail || !apiToken) {
+		if (!anonymousAccessLogged) {
+			utilLogger.info(
+				'No Atlassian user email or API token detected. Falling back to anonymous access for public Confluence content.',
+			);
+			anonymousAccessLogged = true;
+		}
+		return {
+			siteName,
+		};
 	}
 
 	return {
@@ -52,6 +72,18 @@ export function getAtlassianCredentials(): AtlassianCredentials | null {
 		userEmail,
 		apiToken,
 	};
+}
+
+/**
+ * Determine if full authentication credentials are available
+ */
+export function hasAtlassianAuthCredentials(
+	credentials: AtlassianCredentials | null,
+): credentials is AtlassianCredentials & {
+	userEmail: string;
+	apiToken: string;
+} {
+	return Boolean(credentials?.userEmail && credentials?.apiToken);
 }
 
 /**
@@ -80,12 +112,19 @@ export async function fetchAtlassian<T>(
 	const url = `${baseUrl}${normalizedPath}`;
 
 	// Set up authentication and headers
-	const headers = {
-		Authorization: `Basic ${Buffer.from(`${userEmail}:${apiToken}`).toString('base64')}`,
+	const headers: Record<string, string> = {
 		'Content-Type': 'application/json',
 		Accept: 'application/json',
 		...options.headers,
 	};
+
+	const hasAuthHeader = Object.keys(headers).some(
+		(header) => header.toLowerCase() === 'authorization',
+	);
+
+	if (userEmail && apiToken && !hasAuthHeader) {
+		headers.Authorization = `Basic ${Buffer.from(`${userEmail}:${apiToken}`).toString('base64')}`;
+	}
 
 	// Prepare request options
 	const requestOptions: RequestInit = {

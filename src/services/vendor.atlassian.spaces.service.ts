@@ -1,6 +1,7 @@
 import { createApiError, createAuthMissingError } from '../utils/error.util.js';
 import { Logger } from '../utils/logger.util.js';
 import {
+	ATLASSIAN_SITE_REQUIRED_MESSAGE,
 	fetchAtlassian,
 	getAtlassianCredentials,
 } from '../utils/transport.util.js';
@@ -23,7 +24,8 @@ const API_PATH = '/wiki/api/v2';
  * @namespace VendorAtlassianSpacesService
  * @description Service for interacting with Confluence Spaces API.
  * Provides methods for listing spaces and retrieving space details.
- * All methods require valid Atlassian credentials configured in the environment.
+ * Requires ATLASSIAN_SITE_NAME to be configured. Provide ATLASSIAN_USER_EMAIL and
+ * ATLASSIAN_API_TOKEN for accessing non-public content.
  */
 
 /**
@@ -69,9 +71,7 @@ async function list(
 
 	const credentials = getAtlassianCredentials();
 	if (!credentials) {
-		throw createAuthMissingError(
-			'Atlassian credentials are required for this operation',
-		);
+		throw createAuthMissingError(ATLASSIAN_SITE_REQUIRED_MESSAGE);
 	}
 
 	// Build query parameters
@@ -204,9 +204,7 @@ async function get(
 
 	const credentials = getAtlassianCredentials();
 	if (!credentials) {
-		throw createAuthMissingError(
-			'Atlassian credentials are required for this operation',
-		);
+		throw createAuthMissingError(ATLASSIAN_SITE_REQUIRED_MESSAGE);
 	}
 
 	// Build query parameters

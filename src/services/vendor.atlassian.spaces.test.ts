@@ -1,5 +1,8 @@
 import atlassianSpacesService from './vendor.atlassian.spaces.service.js';
-import { getAtlassianCredentials } from '../utils/transport.util.js';
+import {
+	getAtlassianCredentials,
+	hasAtlassianAuthCredentials,
+} from '../utils/transport.util.js';
 import { config } from '../utils/config.util.js';
 import { McpError } from '../utils/error.util.js';
 
@@ -8,15 +11,16 @@ describe('Vendor Atlassian Spaces Service', () => {
 	beforeAll(() => {
 		config.load(); // Ensure config is loaded
 		const credentials = getAtlassianCredentials();
-		if (!credentials) {
+		if (!hasAtlassianAuthCredentials(credentials)) {
 			console.warn(
-				'Skipping Atlassian Spaces Service tests: No credentials available',
+				'Skipping Atlassian Spaces Service tests: No authenticated credentials available',
 			);
 		}
 	});
 
 	// Helper function to skip tests when credentials are missing
-	const skipIfNoCredentials = () => !getAtlassianCredentials();
+	const skipIfNoCredentials = () =>
+		!hasAtlassianAuthCredentials(getAtlassianCredentials());
 
 	describe('list', () => {
 		it('should return a list of spaces', async () => {
