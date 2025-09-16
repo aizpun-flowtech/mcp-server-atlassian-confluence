@@ -10,8 +10,9 @@ Transform how you access and interact with your team's knowledge by connecting C
 ✅ **Search across all spaces**: *"Find all pages about security best practices"*  
 ✅ **Get instant answers**: *"Show me the latest release notes from the Product space"*  
 ✅ **Access team knowledge**: *"What are our HR policies for remote work?"*  
-✅ **Review page comments**: *"Show me the discussion on the architecture document"*  
-✅ **Find specific content**: *"Search for pages with 'onboarding' in the title"*  
+✅ **Review page comments**: *"Show me the discussion on the architecture document"*
+✅ **Find specific content**: *"Search for pages with 'onboarding' in the title"*
+✅ **Run universal search**: *"Show pages, spaces, attachments, and comments about Kubernetes"*
 
 ## Perfect For
 
@@ -55,6 +56,9 @@ npx -y @aashari/mcp-server-atlassian-confluence get-space --space-key DEV
 
 # Search for pages
 npx -y @aashari/mcp-server-atlassian-confluence search --query "API documentation"
+
+# Search across pages, spaces, attachments, and comments in one go
+npx -y @aashari/mcp-server-atlassian-confluence search-all --query "incident response"
 ```
 
 ## Connect to AI Assistants
@@ -130,6 +134,7 @@ Ask your AI assistant:
 - *"Find all documentation with 'security' in the title"*
 - *"Show me pages labeled with 'getting-started'"*
 - *"Search for content in the DEV space about deployment"*
+- *"Run a universal search for 'incident response' across spaces, pages, attachments, and comments"*
 
 ### 📄 Access Specific Content
 
