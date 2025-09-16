@@ -13,24 +13,12 @@ import { SearchToolArgsType } from '../tools/atlassian.search.types.js';
 import { buildErrorContext } from '../utils/error-handler.util.js';
 import { ensureMcpError } from '../utils/error.util.js';
 import { formatHeading, formatPagination } from '../utils/formatter.util.js';
+import { escapeCqlValue } from '../utils/cql.util.js';
 
 const controllerLogger = Logger.forContext(
 	'controllers/atlassian.search.controller.ts',
 );
 controllerLogger.debug('Search controller initialized');
-
-/**
- * Escapes special characters in a string for safe use within CQL quotes.
- * Uses JSON.stringify to handle escaping and removes the outer quotes.
- * @param value The string to escape.
- * @returns Escaped string, suitable for placing inside CQL double quotes.
- */
-function escapeCqlValue(value: string): string {
-	// JSON.stringify correctly escapes quotes, backslashes, etc.
-	const jsonString = JSON.stringify(value);
-	// Remove the leading and trailing double quotes added by stringify
-	return jsonString.slice(1, -1);
-}
 
 /**
  * Builds a CQL query string from provided options.

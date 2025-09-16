@@ -14,6 +14,7 @@ import cors from 'cors';
 import atlassianSpacesTools from './tools/atlassian.spaces.tool.js';
 import atlassianPagesTools from './tools/atlassian.pages.tool.js';
 import atlassianSearchTools from './tools/atlassian.search.tool.js';
+import atlassianUniversalSearchTools from './tools/atlassian.universal-search.tool.js';
 import atlassianCommentsTools from './tools/atlassian.comments.tool.js';
 import atlassianInlineCommentsTools from './tools/atlassian.inline-comments.tool.js';
 
@@ -75,6 +76,9 @@ export async function startServer(
 
 	atlassianSearchTools.registerTools(serverInstance);
 	serverLogger.debug('Registered Search tools');
+
+	atlassianUniversalSearchTools.registerTools(serverInstance);
+	serverLogger.debug('Registered Universal Search tools');
 
 	atlassianCommentsTools.registerTools(serverInstance);
 	serverLogger.debug('Registered Comments tools');
