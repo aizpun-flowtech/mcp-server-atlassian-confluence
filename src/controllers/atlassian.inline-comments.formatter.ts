@@ -8,6 +8,10 @@ import {
 	formatHeading,
 	formatSeparator,
 } from '../utils/formatter.util.js';
+import {
+	ensureAbsoluteConfluenceUrl,
+	resolveConfluenceBaseUrl,
+} from '../utils/url.util.js';
 
 /**
  * Extended CommentData interface with the converted markdown body and highlighted text
@@ -36,6 +40,8 @@ export function formatInlineCommentsList(
 	start: number = 0,
 	limit: number = 25,
 ): string {
+	const resolvedBaseUrl = resolveConfluenceBaseUrl(baseUrl);
+
 	if (!commentsData || commentsData.length === 0) {
 		return (
 			formatHeading('Inline Comments', 1) +
@@ -137,9 +143,10 @@ export function formatInlineCommentsList(
 
 		// Add link to the comment if available
 		if (comment._links?.webui) {
-			const commentUrl = comment._links.webui.startsWith('http')
-				? comment._links.webui
-				: `${baseUrl}${comment._links.webui}`;
+			const commentUrl = ensureAbsoluteConfluenceUrl(
+				comment._links.webui,
+				resolvedBaseUrl,
+			);
 
 			lines.push('');
 			lines.push(`[🔗 View comment in Confluence](${commentUrl})`);
@@ -174,8 +181,11 @@ export function formatInlineCommentsList(
 	lines.push(`*Information retrieved at: ${formatDate(new Date())}*`);
 
 	// Add link to the page
-	if (baseUrl && pageId) {
-		const pageUrl = `${baseUrl}/pages/viewpage.action?pageId=${pageId}`;
+	if (pageId) {
+		const pageUrl = ensureAbsoluteConfluenceUrl(
+			`pages/viewpage.action?pageId=${pageId}`,
+			resolvedBaseUrl,
+		);
 		lines.push(
 			`*View all content and comments on [this page](${pageUrl})*`,
 		);

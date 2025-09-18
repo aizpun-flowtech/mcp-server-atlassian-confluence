@@ -11,6 +11,10 @@ import {
 	formatSeparator,
 	formatNumberedList,
 } from '../utils/formatter.util.js';
+import {
+	ensureAbsoluteConfluenceUrl,
+	resolveConfluenceBaseUrl,
+} from '../utils/url.util.js';
 
 /**
  * Format a list of pages for display
@@ -22,6 +26,8 @@ export function formatPagesList(
 	pagesData: PageSchemaType[],
 	baseUrl: string = '',
 ): string {
+	const resolvedBaseUrl = resolveConfluenceBaseUrl(baseUrl);
+
 	if (!pagesData || pagesData.length === 0) {
 		return (
 			'No Confluence pages found matching your criteria.' +
@@ -42,7 +48,10 @@ export function formatPagesList(
 		itemLines.push(formatHeading(page.title, 2));
 
 		// Create an object with all the properties to display
-		const pageUrl = `${baseUrl}/pages/viewpage.action?pageId=${page.id}`;
+		const pageUrl = ensureAbsoluteConfluenceUrl(
+			`pages/viewpage.action?pageId=${page.id}`,
+			resolvedBaseUrl,
+		);
 
 		const properties: Record<string, unknown> = {
 			ID: page.id,
@@ -83,11 +92,12 @@ export function formatPageDetails(
 	commentsSummary?: ControllerResponse | null,
 ): string {
 	// Create URL
-	const baseUrl = pageData._links.base || '';
+	const resolvedBaseUrl = resolveConfluenceBaseUrl(pageData._links.base);
 	const pageUrl = pageData._links.webui || '';
-	const fullUrl = pageUrl.startsWith('http')
-		? pageUrl
-		: `${baseUrl}${pageUrl}`;
+	const fullUrl = ensureAbsoluteConfluenceUrl(
+		pageUrl || `pages/viewpage.action?pageId=${pageData.id}`,
+		resolvedBaseUrl,
+	);
 
 	const lines: string[] = [
 		formatHeading(`Confluence Page: ${pageData.title}`, 1),
@@ -152,7 +162,10 @@ export function formatPageDetails(
 				lines.push('');
 
 				// Link to view all comments for this page
-				const allCommentsUrl = `${baseUrl}/pages/viewpage.action?pageId=${pageData.id}&showComments=true`;
+				const allCommentsUrl = ensureAbsoluteConfluenceUrl(
+					`pages/viewpage.action?pageId=${pageData.id}&showComments=true`,
+					resolvedBaseUrl,
+				);
 				lines.push(
 					`*${formatUrl(allCommentsUrl, 'View all comments on this page')}*`,
 				);

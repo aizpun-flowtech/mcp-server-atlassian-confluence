@@ -12,6 +12,10 @@ import {
 	formatSeparator,
 	formatNumberedList,
 } from '../utils/formatter.util.js';
+import {
+	ensureAbsoluteConfluenceUrl,
+	resolveConfluenceBaseUrl,
+} from '../utils/url.util.js';
 
 /**
  * Format a list of spaces for display
@@ -21,6 +25,8 @@ import {
 export function formatSpacesList(
 	spacesData: z.infer<typeof SpacesResponseSchema>,
 ): string {
+	const resolvedBaseUrl = resolveConfluenceBaseUrl(spacesData._links?.base);
+
 	if (!spacesData.results || spacesData.results.length === 0) {
 		return (
 			'No Confluence spaces found matching your criteria.' +
@@ -57,9 +63,10 @@ export function formatSpacesList(
 				Description:
 					typedSpace.description?.view?.value || 'Not available',
 				URL: formatUrl(
-					spacesData._links?.base
-						? `${spacesData._links.base}/spaces/${typedSpace.key}`
-						: `/spaces/${typedSpace.key}`,
+					ensureAbsoluteConfluenceUrl(
+						typedSpace._links?.webui || `spaces/${typedSpace.key}`,
+						typedSpace._links?.base || resolvedBaseUrl,
+					),
 					typedSpace.key,
 				),
 			};
@@ -97,11 +104,12 @@ export function formatSpaceDetails(
 	topLevelPagesData?: z.infer<typeof PagesResponseSchema> | null,
 ): string {
 	// Create URL
-	const baseUrl = spaceData._links.base || '';
+	const resolvedBaseUrl = resolveConfluenceBaseUrl(spaceData._links.base);
 	const spaceUrl = spaceData._links.webui || '';
-	const fullUrl = spaceUrl.startsWith('http')
-		? spaceUrl
-		: `${baseUrl}${spaceUrl}`;
+	const fullUrl = ensureAbsoluteConfluenceUrl(
+		spaceUrl || `spaces/${spaceData.key}`,
+		resolvedBaseUrl,
+	);
 
 	const lines: string[] = [
 		formatHeading(`Confluence Space: ${spaceData.key}`, 1),
@@ -171,9 +179,10 @@ export function formatSpaceDetails(
 			(page) => {
 				// Get the page URL
 				const pageUrl = page._links?.webui || '';
-				const fullPageUrl = pageUrl.startsWith('http')
-					? pageUrl
-					: `${baseUrl}${pageUrl}`;
+				const fullPageUrl = ensureAbsoluteConfluenceUrl(
+					pageUrl || `pages/viewpage.action?pageId=${page.id}`,
+					resolvedBaseUrl,
+				);
 
 				// Format last modified date
 				const lastModified = page.version?.createdAt
@@ -197,7 +206,10 @@ export function formatSpaceDetails(
 		lines.push('');
 
 		// Add link to view all pages in this space
-		const spaceViewAllPagesUrl = `${baseUrl}/spaces/${spaceData.key}/pages`;
+		const spaceViewAllPagesUrl = ensureAbsoluteConfluenceUrl(
+			`spaces/${spaceData.key}/pages`,
+			resolvedBaseUrl,
+		);
 		lines.push(
 			`*${formatUrl(spaceViewAllPagesUrl, 'View all pages in this space')}*`,
 		);
@@ -247,8 +259,10 @@ export function formatSpaceDetails(
 
 	if (spaceData.homepageId) {
 		// Construct homepage URL carefully using base and ID
-		const homepagePath = `/wiki/spaces/${spaceData.key}/pages/${spaceData.homepageId}`;
-		const fullHomepageUrl = `${baseUrl}${homepagePath}`;
+		const fullHomepageUrl = ensureAbsoluteConfluenceUrl(
+			`spaces/${spaceData.key}/pages/${spaceData.homepageId}`,
+			resolvedBaseUrl,
+		);
 		links.push(`- ${formatUrl(fullHomepageUrl, 'View Homepage')}`);
 	}
 
