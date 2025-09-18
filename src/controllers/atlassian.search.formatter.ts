@@ -6,6 +6,7 @@ import {
 	formatSeparator,
 	formatDate,
 } from '../utils/formatter.util.js';
+import { ensureAbsoluteConfluenceUrl } from '../utils/url.util.js';
 
 /**
  * Format search results for display
@@ -29,14 +30,15 @@ export function formatSearchResultItem(result: SearchResultType): string {
 		properties['Space ID'] = result.space.id;
 	}
 
-	const url =
+	const rawUrl =
 		result.url ||
 		result.content?._links?.webui ||
 		result.resultGlobalContainer?.displayUrl;
 
-	if (url) {
+	if (rawUrl) {
+		const absoluteUrl = ensureAbsoluteConfluenceUrl(rawUrl);
 		properties['URL'] = {
-			url,
+			url: absoluteUrl,
 			title: 'View in Confluence',
 		};
 	}

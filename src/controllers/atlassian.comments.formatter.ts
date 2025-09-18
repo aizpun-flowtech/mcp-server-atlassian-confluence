@@ -10,6 +10,10 @@ import {
 	formatSeparator,
 	formatNumberedList,
 } from '../utils/formatter.util.js';
+import {
+	ensureAbsoluteConfluenceUrl,
+	resolveConfluenceBaseUrl,
+} from '../utils/url.util.js';
 
 /**
  * Extended CommentData interface with the converted markdown body and highlighted text
@@ -32,6 +36,8 @@ export function formatCommentsList(
 	pageId: string,
 	baseUrl: string = '',
 ): string {
+	const resolvedBaseUrl = resolveConfluenceBaseUrl(baseUrl);
+
 	if (!commentsData || commentsData.length === 0) {
 		return (
 			'No comments found for this page.' +
@@ -94,9 +100,10 @@ export function formatCommentsList(
 
 			// Add link to the comment if available
 			if (comment._links?.webui) {
-				const commentUrl = comment._links.webui.startsWith('http')
-					? comment._links.webui
-					: `${baseUrl}${comment._links.webui}`;
+				const commentUrl = ensureAbsoluteConfluenceUrl(
+					comment._links.webui,
+					resolvedBaseUrl,
+				);
 
 				itemLines.push('');
 				itemLines.push(`[View comment in Confluence](${commentUrl})`);
@@ -113,8 +120,11 @@ export function formatCommentsList(
 	lines.push(`*Information retrieved at: ${formatDate(new Date())}*`);
 
 	// Add link to the page
-	if (baseUrl && pageId) {
-		const pageUrl = `${baseUrl}/pages/viewpage.action?pageId=${pageId}`;
+	if (pageId) {
+		const pageUrl = ensureAbsoluteConfluenceUrl(
+			`pages/viewpage.action?pageId=${pageId}`,
+			resolvedBaseUrl,
+		);
 		lines.push(`*View all comments on [this page](${pageUrl})*`);
 	}
 
